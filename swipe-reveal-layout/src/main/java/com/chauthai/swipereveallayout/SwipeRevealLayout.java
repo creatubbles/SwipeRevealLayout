@@ -30,6 +30,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -185,8 +186,26 @@ public class SwipeRevealLayout extends ViewGroup {
         return true;
     }
 
+    float mx = 0f;
+    float my = 0f;
+    private static final int sensivity = 10;
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+        int action = MotionEventCompat.getActionMasked(ev);
+        if (action == MotionEvent.ACTION_DOWN) {
+            mx = ev.getX();
+            my = ev.getY();
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            int deltaX = (int) (mx - ev.getX());
+            int deltaY = (int) (my - ev.getY());
+            int s = dpToPx(sensivity);
+            if (Math.abs(deltaX) < s && Math.abs(deltaY) < s) {
+                return false;
+            }
+        }
+
         mDragHelper.processTouchEvent(ev);
         mGestureDetector.onTouchEvent(ev);
 
